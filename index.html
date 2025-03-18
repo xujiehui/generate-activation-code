@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>激活码生成器</title>
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGE5MGUyIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHJlY3QgeD0iNCIgeT0iNCIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiByeD0iMiIgcnk9IjIiPjwvcmVjdD48bGluZSB4MT0iOCIgeTE9IjEwIiB4Mj0iOCIgeTI9IjEwIj48L2xpbmU+PGxpbmUgeDE9IjEyIiB5MT0iMTAiIHgyPSIxMiIgeTI9IjEwIj48L2xpbmU+PGxpbmUgeDE9IjE2IiB5MT0iMTAiIHgyPSIxNiIgeTI9IjEwIj48L2xpbmU+PGxpbmUgeDE9IjgiIHkxPSIxNCIgeDI9IjgiIHkyPSIxNCI+PC9saW5lPjxsaW5lIHgxPSIxMiIgeTE9IjE0IiB4Mj0iMTIiIHkyPSIxNCI+PC9saW5lPjxsaW5lIHgxPSIxNiIgeTE9IjE0IiB4Mj0iMTYiIHkyPSIxNCI+PC9saW5lPjwvc3ZnPg==" type="image/svg+xml">
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject)
+            .then((result) => go.run(result.instance));
+            
+        function generateCode() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                document.getElementById('result').innerHTML = '请输入用户名';
+                return;
+            }
+            const code = __generate_activation_code__(username);
+            document.getElementById('result').innerHTML = code;
+            document.getElementById('result-container').style.display = 'block';
+            document.getElementById('copy-btn').style.display = 'inline-flex';
+        }
+        
+        function copyCode() {
+            const code = document.getElementById('result').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const copyBtn = document.getElementById('copy-btn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '已复制 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+            });
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 30px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .calculator-icon {
+            width: 28px;
+            height: 28px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+        
+        input:focus {
+            border-color: #4a90e2;
+        }
+        
+        button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #357ae8;
+        }
+        
+        #result-container {
+            margin-top: 30px;
+            display: none;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        #result {
+            font-family: monospace;
+            word-break: break-all;
+            color: #333;
+            padding-right: 40px;
+        }
+        
+        .label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        #copy-btn {
+            background-color: transparent;
+            color: #4a90e2;
+            border: 1px solid #4a90e2;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            width: auto;
+            transition: all 0.2s;
+        }
+        
+        #copy-btn:hover {
+            background-color: #4a90e2;
+            color: white;
+        }
+        
+        #copy-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <svg class="calculator-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#4a90e2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                <rect x="8" y="6" width="8" height="3" rx="1" ry="1"></rect>
+                <line x1="8" y1="13" x2="8" y2="13"></line>
+                <line x1="12" y1="13" x2="12" y2="13"></line>
+                <line x1="16" y1="13" x2="16" y2="13"></line>
+                <line x1="8" y1="17" x2="8" y2="17"></line>
+                <line x1="12" y1="17" x2="12" y2="17"></line>
+                <line x1="16" y1="17" x2="16" y2="17"></line>
+            </svg>
+            激活码生成器
+        </h1>
+        <div class="input-group">
+            <label class="label" for="username">请输入用户名</label>
+            <input type="text" id="username" placeholder="输入用户名生成激活码" autocomplete="off">
+        </div>
+        <button onclick="generateCode()">生成激活码</button>
+        <div id="result-container">
+            <label class="label">您的激活码</label>
+            <div id="result"></div>
+            <button id="copy-btn" onclick="copyCode()">
+                复制激活码
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
